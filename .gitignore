@@ -1,0 +1,9 @@
+/build
+.gradle/
+out/
+.vscode/
+*.zip
+.idea/
+*.patch
+*.bak
+/run/
