@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "dialogguard-gametest",
+  "version": "1.0.0",
+  "name": "DialogGuard GameTests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.dialogguard.gametest.DialogRiskAnalyzerGameTest"
+    ]
+  }
+}

@@ -16,7 +16,7 @@ import java.util.List;
 /** Tiny JSON config stored at config/dialogguard.json. Secure defaults: everything is blocked. */
 public final class GuardConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static GuardConfig instance = new GuardConfig();
+    private static volatile GuardConfig instance = new GuardConfig();
 
     /** Block every server dialog that contains at least one input control. */
     public boolean blockInputDialogs = true;
@@ -26,6 +26,8 @@ public final class GuardConfig {
     public boolean showToast = true;
     public boolean echoToChat = true;
     public int bannerSeconds = 15;
+    /** Minimum seconds between toast/chat alerts; 0 disables throttling (banner still updates). */
+    public int notificationCooldownSeconds = 4;
 
     /** A single hit on any of these is enough (lower-case, prefix-matched on word start). */
     public List<String> strongKeywords = new ArrayList<>(List.of(
@@ -41,24 +43,32 @@ public final class GuardConfig {
         return instance;
     }
 
-    public static void load() {
+    /**
+     * Loads (or creates) the config file. Returns false when the file could not be read or
+     * written; in that case the secure defaults are used and a diagnostic is logged.
+     */
+    public static boolean load() {
         Path path = FabricLoader.getInstance().getConfigDir().resolve("dialogguard.json");
         try {
+            GuardConfig loaded = new GuardConfig();
             if (Files.exists(path)) {
                 try (Reader reader = Files.newBufferedReader(path)) {
-                    GuardConfig loaded = GSON.fromJson(reader, GuardConfig.class);
-                    if (loaded != null) {
-                        instance = loaded.sanitized();
-                    }
+                    GuardConfig fromFile = GSON.fromJson(reader, GuardConfig.class);
+                    if (fromFile != null) loaded = fromFile;
                 }
             }
+            instance = loaded.sanitized();
+
+            Files.createDirectories(path.getParent());
             // Always write back so new options appear in old files.
             try (Writer writer = Files.newBufferedWriter(path)) {
                 GSON.toJson(instance, writer);
             }
+            return true;
         } catch (IOException | JsonParseException e) {
             DialogGuardClient.LOGGER.error("Could not read/write config, using secure defaults", e);
             instance = new GuardConfig();
+            return false;
         }
     }
 
@@ -67,6 +77,7 @@ public final class GuardConfig {
         if (strongKeywords == null) strongKeywords = defaults.strongKeywords;
         if (weakKeywords == null) weakKeywords = defaults.weakKeywords;
         bannerSeconds = Math.max(3, Math.min(120, bannerSeconds));
+        notificationCooldownSeconds = Math.max(0, Math.min(120, notificationCooldownSeconds));
         return this;
     }
 }

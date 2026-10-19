@@ -21,6 +21,22 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "dialogguard-gametest"
+        enableGameTests = true
+        enableClientGameTests = false
+        eula = true
+    }
+}
+
+// Keep the forked Minecraft test server within modest CI/container memory limits.
+tasks.matching { it.name == "runGameTest" }.configureEach {
+    maxHeapSize = "384m"
+    jvmArgs "-XX:+UseSerialGC", "-XX:ActiveProcessorCount=2"
+}
+
 processResources {
     inputs.property "version", project.version
     filesMatching("fabric.mod.json") {

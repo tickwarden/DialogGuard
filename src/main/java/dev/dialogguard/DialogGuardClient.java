@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * Defence layers (see the mixin package):
  *   Layer 1: ClientCommonNetworkHandlerMixin - drops the S2C "show dialog" packet before any screen exists.
  *   Layer 2: ScreenMixin - catches dialogs that bypass the packet path
- *            (e.g. a chat "show_dialog" click event) and disables their text fields.
+ *            (e.g. a chat "show_dialog" click event), inspects and closes unsafe screens.
  */
 public final class DialogGuardClient implements ClientModInitializer {
     public static final String MOD_ID = "dialogguard";
@@ -22,6 +22,7 @@ public final class DialogGuardClient implements ClientModInitializer {
     public void onInitializeClient() {
         GuardConfig.load();
         DialogGuardNetworking.register();
+        DialogGuardCommands.register();
 
         // Banner while in-game (HUD). HudRenderCallback is deprecated in newer Fabric API
         // releases but still present across the 1.21.6 - 1.21.11 range.
@@ -33,6 +34,6 @@ public final class DialogGuardClient implements ClientModInitializer {
                 ScreenEvents.afterRender(screen).register((s, drawContext, mouseX, mouseY, tickDelta) ->
                         WarningBanner.render(drawContext)));
 
-        LOGGER.info("DialogGuard loaded: server dialogs with input fields / credential prompts will be blocked.");
+        LOGGER.info("DialogGuard loaded: unsafe server dialogs are blocked; use /dialogguard status for session info.");
     }
 }

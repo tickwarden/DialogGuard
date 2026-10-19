@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "ClientCommonNetworkHandlerMixin",
-    "ScreenMixin"
+    "ScreenMixin",
+    "DialogScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,6 +1,7 @@
 package dev.dialogguard.mixin;
 
 import dev.dialogguard.DialogInspector;
+import dev.dialogguard.DialogRiskAnalyzer;
 import dev.dialogguard.GuardState;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.network.packet.s2c.common.ShowDialogS2CPacket;
@@ -29,7 +30,7 @@ public abstract class ClientCommonNetworkHandlerMixin {
     @Inject(method = "onShowDialog", at = @At("HEAD"), cancellable = true)
     private void dialogguard$onShowDialog(ShowDialogS2CPacket packet, CallbackInfo ci) {
         try {
-            DialogInspector.Verdict verdict = DialogInspector.inspect(packet.dialog().value());
+            DialogRiskAnalyzer.Verdict verdict = DialogInspector.inspect(packet.dialog().value());
             if (verdict.block()) {
                 ci.cancel(); // drop the packet: no screen, no input fields, nothing to submit
                 GuardState.report("show_dialog packet", verdict.reason());
