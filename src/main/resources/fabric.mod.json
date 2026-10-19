@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "dialogguard",
+  "version": "${version}",
+  "name": "DialogGuard",
+  "description": "Client-side protection against phishing via server-sent dialogs and input forms. Blocks dialogs that contain input fields or ask for Microsoft credentials / verification codes.",
+  "authors": ["DialogGuard"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.dialogguard.DialogGuardClient"]
+  },
+  "mixins": ["dialogguard.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": ">=1.21.6 <=1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
